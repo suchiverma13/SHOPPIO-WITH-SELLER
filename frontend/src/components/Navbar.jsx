@@ -87,7 +87,15 @@ const Navbar = () => {
             <p>CONTACT</p>
           </NavLink>
           <NavLink
-            to="http://localhost:5175"
+            to="#"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent NavLink from navigating internally
+              window.open(
+                "https://shoppio-2o-seller.vercel.app",
+                "_blank",
+                "noopener,noreferrer"
+              );
+            }}
             className={({ isActive }) =>
               `p-2 transition-colors border rounded-full px-5 duration-300 ${
                 isActive ? "text-blue-500" : "text-gray-900"
@@ -228,11 +236,22 @@ const Navbar = () => {
                 Contact
               </NavLink>
               <NavLink
-                onClick={() => setVisible(false)}
-                to="/contact"
-                className="py-3 px-4 hover:bg-gray-100 rounded transition-colors"
+                to="#"
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent NavLink from navigating internally
+                  window.open(
+                    "https://shoppio-2o-seller.vercel.app",
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
+                }}
+                className={({ isActive }) =>
+                  `p-2 transition-colors border rounded-full px-5 duration-300 ${
+                    isActive ? "text-blue-500" : "text-gray-900"
+                  }`
+                }
               >
-                BECOME SELLER
+                <p>BECOME SELLER</p>
               </NavLink>
             </nav>
             <div className="mt-auto p-4">
