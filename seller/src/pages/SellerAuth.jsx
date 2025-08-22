@@ -17,10 +17,8 @@ const SellerAuth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
 
-  // Toggle password visibility
   const togglePassword = () => setShowPassword(!showPassword);
 
-  // Login handler
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -37,17 +35,10 @@ const SellerAuth = () => {
         alert(data.message);
       }
     } catch (err) {
-      console.error(err);
-      // Check if backend sent a message
-      if (err.response && err.response.data && err.response.data.message) {
-        alert(err.response.data.message); // show "Wait for admin approval"
-      } else {
-        alert("Something went wrong");
-      }
+      alert(err.response?.data?.message || "Something went wrong");
     }
   };
 
-  // Signup handler
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
@@ -60,39 +51,39 @@ const SellerAuth = () => {
       });
 
       if (data.success) {
-        alert(
-          "Signup request sent! Wait for admin approval before logging in."
-        );
+        alert("Signup request sent! Wait for admin approval.");
         setActiveTab("login");
       } else {
         alert(data.message);
       }
     } catch (err) {
-      console.error(err);
       alert("Something went wrong");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-96">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-0">
+      {/* Welcome Message */}
+      <div className="w-full max-w-md text-center mb-4 sm:mb-6 p-4 sm:p-6 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-md">
+        <h1 className="text-xl sm:text-2xl font-bold">Welcome to Seller Dashboard!</h1>
+        <p className="text-sm sm:text-base mt-1">Manage products, track orders & grow your business.</p>
+      </div>
+
+      {/* Login/Signup Box */}
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6 sm:p-8">
         {/* Tabs */}
-        <div className="flex mb-6">
+        <div className="flex mb-4 sm:mb-6">
           <button
-            className={`flex-1 py-2 ${
-              activeTab === "login"
-                ? "border-b-2 border-blue-600 font-bold"
-                : ""
+            className={`flex-1 py-2 sm:py-3 ${
+              activeTab === "login" ? "border-b-2 border-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("login")}
           >
             Login
           </button>
           <button
-            className={`flex-1 py-2 ${
-              activeTab === "signup"
-                ? "border-b-2 border-blue-600 font-bold"
-                : ""
+            className={`flex-1 py-2 sm:py-3 ${
+              activeTab === "signup" ? "border-b-2 border-blue-600 font-bold" : ""
             }`}
             onClick={() => setActiveTab("signup")}
           >
@@ -102,11 +93,11 @@ const SellerAuth = () => {
 
         {/* Login Form */}
         {activeTab === "login" && (
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-3 sm:space-y-4">
             <input
               type="email"
               placeholder="Email"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 sm:p-3 border rounded"
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               required
@@ -115,13 +106,13 @@ const SellerAuth = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 sm:p-3 border rounded"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
               />
               <span
-                className="absolute right-2 top-2 cursor-pointer text-gray-500"
+                className="absolute right-2 top-2 sm:top-3 cursor-pointer text-gray-500"
                 onClick={togglePassword}
               >
                 {showPassword ? "🙈" : "👁️"}
@@ -129,7 +120,7 @@ const SellerAuth = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
               Login
             </button>
@@ -138,11 +129,11 @@ const SellerAuth = () => {
 
         {/* Signup Form */}
         {activeTab === "signup" && (
-          <form onSubmit={handleSignup} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-3 sm:space-y-4">
             <input
               type="text"
               placeholder="Owner Name"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 sm:p-3 border rounded"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -150,7 +141,7 @@ const SellerAuth = () => {
             <input
               type="text"
               placeholder="Shop Name"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 sm:p-3 border rounded"
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
               required
@@ -158,7 +149,7 @@ const SellerAuth = () => {
             <input
               type="text"
               placeholder="GST Number"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 sm:p-3 border rounded"
               value={gst}
               onChange={(e) => setGst(e.target.value)}
               required
@@ -166,7 +157,7 @@ const SellerAuth = () => {
             <input
               type="email"
               placeholder="Email"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 sm:p-3 border rounded"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
               required
@@ -175,13 +166,13 @@ const SellerAuth = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 sm:p-3 border rounded"
                 value={signupPassword}
                 onChange={(e) => setSignupPassword(e.target.value)}
                 required
               />
               <span
-                className="absolute right-2 top-2 cursor-pointer text-gray-500"
+                className="absolute right-2 top-2 sm:top-3 cursor-pointer text-gray-500"
                 onClick={togglePassword}
               >
                 {showPassword ? "🙈" : "👁️"}
@@ -189,7 +180,7 @@ const SellerAuth = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="w-full py-2 sm:py-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
             >
               Signup
             </button>
