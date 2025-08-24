@@ -3,42 +3,49 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate } =
+  const { products, cartItems, loadingCart, addToCart, removeFromCart } =
     useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (products.length > 0) {
-      const tempData = [];
-      for (const prodId in cartItems) {
-        for (const size in cartItems[prodId]) {
-          if (cartItems[prodId][size] > 0) {
-            tempData.push({
-              _id: prodId,
-              size: size,
-              quantity: cartItems[prodId][size],
-            });
-          }
+    const tempData = [];
+    for (const prodId in cartItems) {
+      for (const size in cartItems[prodId]) {
+        if (cartItems[prodId][size] > 0) {
+          tempData.push({
+            _id: prodId,
+            size,
+            quantity: cartItems[prodId][size],
+          });
         }
       }
-      setCartData(tempData);
     }
-  }, [cartItems, products]);
+    setCartData(tempData);
+  }, [cartItems]);
 
-  // If cart is empty, show message
+  if (loadingCart)
+    return (
+      <div className="min-h-[50vh] flex justify-center items-center text-gray-500">
+        Loading cart...
+      </div>
+    );
+
   if (cartData.length === 0)
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center text-gray-500 px-4">
         <img
-          src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQjfq1ju534VapeO-Q8_c1gxWFfgYmcQ78jQ&s"} // optional: add a cart empty image in assets
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQjfq1ju534VapeO-Q8_c1gxWFfgYmcQ78jQ&s"
           alt="Empty Cart"
           className="w-32 mb-4"
         />
         <p className="text-xl font-semibold mb-2">Your Cart is Empty</p>
-        <p className="text-gray-400 mb-6">Looks like you haven’t added any products yet.</p>
+        <p className="text-gray-400 mb-6">
+          Looks like you haven’t added any products yet.
+        </p>
         <Link
           to="/"
           className="px-6 py-3 bg-black text-white rounded hover:bg-gray-800 transition-colors"
@@ -77,8 +84,7 @@ const Cart = () => {
                   </p>
                   <div className="flex items-center gap-4">
                     <p className="text-gray-700 font-semibold">
-                      {currency}
-                      {productData.price}
+                      ${productData.price}
                     </p>
                     <span className="px-2 py-1 border rounded bg-gray-100 text-sm">
                       {item.size}
@@ -91,12 +97,11 @@ const Cart = () => {
               <input
                 type="number"
                 min={1}
-                defaultValue={item.quantity}
-                onChange={(e) =>
-                  e.target.value !== "" &&
-                  e.target.value !== "0" &&
-                  updateQuantity(item._id, item.size, Number(e.target.value))
-                }
+                value={item.quantity}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  removeFromCart(item._id, item.size, val); // absolute quantity send kar rahe
+                }}
                 className="border px-2 py-1 w-20 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
 
@@ -104,7 +109,7 @@ const Cart = () => {
               <img
                 src={assets.bin_icon}
                 alt="Remove"
-                onClick={() => updateQuantity(item._id, item.size, 0)}
+                onClick={() => removeFromCart(item._id, item.size, 0, true)}
                 className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer hover:scale-110 transition-transform"
               />
             </div>

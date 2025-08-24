@@ -16,9 +16,16 @@ import SearchBar from "./components/SearchBar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { SignIn, SignUp, UserButton } from "@clerk/clerk-react";
+import ScrollToTop from "./components/ScrollToTop";
+import LoginWrapper from "./pages/Login";
+// import TestCartFetch from "./components/testCartFetch";
+
 const App = () => {
   return (
     <>
+      {/* <TestCartFetch/> */}
+      <ScrollToTop />
       <Navbar />
       <SearchBar />
       <div className="px-4 sm:px-[5vw]">
@@ -37,9 +44,11 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/product/:productId" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
+          {/* <Route path="/login" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} /> */}
           <Route path="/orders" element={<Orders />} />
           <Route path="/place-order" element={<PlaceOrder />} />
+          <Route path="/login" element={<LoginWrapper />} />
         </Routes>
         <Footer />
       </div>

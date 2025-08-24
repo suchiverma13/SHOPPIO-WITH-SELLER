@@ -4,10 +4,12 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import { toast } from "react-toastify";
+import { useAuth } from "@clerk/clerk-react";
 
 const Product = () => {
+  const { isSignedIn } = useAuth();
   const { productId } = useParams();
-  const { products, currency, addToCart, token } = useContext(ShopContext);
+  const { products, currency, addToCart } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
@@ -27,31 +29,45 @@ const Product = () => {
         Loading...
       </div>
     );
+// Add to Cart
+const handleAddToCart = () => {
+if (!isSignedIn) {
+  navigate("/login", { state: { from: window.location.pathname } });
+  return;
+}
 
-  const handleBuyNow = () => {
-    if (!token) {
-      toast.error("Please login to buy now");
-      return;
-    }
-    if (!size) {
-      toast.error("Please select a size");
-      return;
-    }
-    // Navigate to place-order page with product info and selected size
-    navigate("/place-order", { state: { product: productData, size: size } });
-  };
+  if (!size) {
+    toast.error("Please select a size", { autoClose: 2000 });
+    return;
+  }
+  addToCart(productData._id, size);
+  toast.success("Item added to cart!", { autoClose: 2000 });
+};
+
+// Buy Now
+const handleBuyNow = () => {
+  if (!isSignedIn) {
+  navigate("/login", { state: { from: window.location.pathname } });
+  return;
+}
+
+  if (!size) {
+    toast.error("Please select a size");
+    return;
+  }
+  navigate("/place-order", { state: { product: productData, size } });
+};
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-      {/* Product Section */}
       <div className="flex flex-col sm:flex-row gap-12">
-        {/* Product Images */}
+        {/* Images */}
         <div className="flex flex-1 flex-col-reverse sm:flex-row gap-4">
-          {/* Vertical Thumbnails */}
           <div className="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-y-auto sm:w-1/5">
-            {productData.image.map((item, index) => (
+            {productData.image.map((item, idx) => (
               <img
-                key={index}
+                key={idx}
                 src={item}
                 onClick={() => setImage(item)}
                 className={`w-20 h-20 object-cover border cursor-pointer ${
@@ -61,8 +77,6 @@ const Product = () => {
               />
             ))}
           </div>
-
-          {/* Main Image */}
           <div className="flex-1">
             <img
               src={image}
@@ -72,7 +86,7 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Product Info */}
+        {/* Info */}
         <div className="flex-1 flex flex-col gap-4">
           <h1 className="text-3xl font-semibold">{productData.name}</h1>
 
@@ -91,13 +105,11 @@ const Product = () => {
             <span className="ml-2 text-gray-500">(122)</span>
           </div>
 
-          {/* Price */}
           <p className="text-3xl font-bold mt-3">
             {currency}
             {productData.price}
           </p>
 
-          {/* Description */}
           <p className="text-gray-600 mt-3">{productData.description}</p>
 
           {/* Sizes */}
@@ -122,37 +134,23 @@ const Product = () => {
 
           {/* Buttons */}
           <div className="mt-6 flex gap-4">
-            {/* Add to Cart */}
             <button
               onClick={() => {
-                if (!token) {
-                  toast.error("Not authorized, login again", {
-                    autoClose: 2000,
-                  });
-                  return;
-                }
-                if (!size) {
-                  toast.error("Please select a size", { autoClose: 2000 });
-                  return;
-                }
-                addToCart(productData._id, size);
-                toast.success("Item added to cart!", { autoClose: 2000 });
+                handleAddToCart();
+              
               }}
-              className="bg-black cursor-pointer text-white py-3 px-8 rounded-md hover:bg-gray-800 transition-colors"
+              className="bg-black text-white py-3 px-8 rounded-md hover:bg-gray-800 transition-colors"
             >
               Add to Cart
             </button>
-
-            {/* Buy Now */}
             <button
               onClick={handleBuyNow}
-              className="bg-orange-500 cursor-pointer text-white py-3 px-8 rounded-md hover:bg-orange-600 transition-colors"
+              className="bg-orange-500 text-white py-3 px-8 rounded-md hover:bg-orange-600 transition-colors"
             >
               Buy Now
             </button>
           </div>
 
-          {/* Product Highlights */}
           <div className="mt-8 text-gray-500 text-sm flex flex-col gap-1">
             <p>100% Original Product</p>
             <p>Cash on delivery available</p>
@@ -161,7 +159,7 @@ const Product = () => {
         </div>
       </div>
 
-      {/* Description & Reviews */}
+      {/* Description & Related */}
       <div className="mt-16">
         <div className="flex border-b">
           <button className="px-6 py-3 font-medium text-gray-700 border-b-2 border-orange-500">
@@ -170,20 +168,10 @@ const Product = () => {
           <button className="px-6 py-3 text-gray-500">Reviews (122)</button>
         </div>
         <div className="mt-6 text-gray-600 space-y-4">
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae ab
-            assumenda odit facere suscipit, accusamus natus perspiciatis
-            mollitia possimus obcaecati ea illo enim sapiente saepe id autem
-            ipsa.
-          </p>
-          <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam
-            consequatur facilis possimus atque aperiam.
-          </p>
+          <p>{productData.description}</p>
         </div>
       </div>
 
-      {/* Related Products */}
       <RelatedProducts
         category={productData.category}
         subCategory={productData.subCategory}

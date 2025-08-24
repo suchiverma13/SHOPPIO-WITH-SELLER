@@ -1,15 +1,11 @@
-import express from 'express'
+import express from "express";
+import { addToCart, getUserCart, updateCart } from "../controllers/cartController.js";
+import { requireAuth } from "@clerk/express"; // Clerk middleware
 
-import { addToCart, getUserCart, updateCart } from '../controllers/cartController.js'
-import authUser from '../middleware/auth.js';
+const router = express.Router();
 
+router.post("/add", requireAuth(), addToCart);
+router.get("/get", requireAuth(), getUserCart);
+router.put("/update", requireAuth(), updateCart);
 
-const cartRouter = express.Router();
-
-
-cartRouter.post('/add', authUser, addToCart)
-cartRouter.post('/get', authUser, getUserCart)
-cartRouter.post('/update', authUser, updateCart)
-
-
-export default cartRouter
+export default router;

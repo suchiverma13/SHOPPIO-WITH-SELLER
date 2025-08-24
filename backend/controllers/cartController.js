@@ -1,100 +1,84 @@
-import { request } from "express";
-import userModel from "../models/userModel.js";
+import Product from "../models/productModel.js"; // ✅ correct import
+import Cart from "../models/cartModel.js";
+// correct path check kare   // agar cart schema alag file me hai
 
-
-// Add Products to user Cart
-// Add Products to user Cart
-const addToCart = async (req, res) => {
+// Add to Cart
+export const addToCart = async (req, res) => {
   try {
-    const { itemId, size } = req.body;        // frontend sends itemId (productId) and size
-    const userId = req.userId;                // get from auth middleware
+    const authData = req.auth();   // ✅
+    const userId = authData.userId;
 
-    const userData = await userModel.findById(userId);
-    let cartData = userData.cartData || {};
+    const { productId, size, quantity } = req.body;
 
-    if (cartData[itemId]) {
-      if (cartData[itemId][size]) {
-        cartData[itemId][size] += 1;
-      } else {
-        cartData[itemId][size] = 1;
-      }
+    let cart = await Cart.findOne({ userId });
+
+    if (!cart) {
+      cart = new Cart({ userId, products: [] });
+    }
+
+    // Check if product already exists in cart
+    const existingProduct = cart.products.find(
+      (item) =>
+        item.productId.toString() === productId &&
+        item.size === size
+    );
+
+    if (existingProduct) {
+      existingProduct.quantity += quantity;
     } else {
-      cartData[itemId] = {};
-      cartData[itemId][size] = 1;
+      cart.products.push({ productId, size, quantity });
     }
 
-    await userModel.findByIdAndUpdate(userId, { cartData });
-    res.json({ success: true, message: "Added to Cart" });
+    await cart.save();
+    res.status(200).json({ message: "Item added to cart", cart });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ message: "Error adding to cart", error });
   }
 };
 
-// Similar changes for updateCart and getUserCart
-
-// update user Cart
-const updateCart = async (req, res) => {
+export const getUserCart = async (req, res) => {
   try {
-    const userId = req.userId; // use auth middleware
-    const { itemId, size, quantity } = req.body;
+    // Use req.auth() instead of req.auth
+    const auth = req.auth(); // function call
+    const userId = auth.userId; // ya auth.user.id, Clerk docs ke according
 
-    const userData = await userModel.findById(userId);
-    let cartData = userData.cartData || {};
+    if (!userId) return res.status(400).json({ message: "User ID missing" });
 
-    if (quantity === 0) {
-      // Remove the size
-      if (cartData[itemId]) {
-        delete cartData[itemId][size];
-        // Remove the product if no sizes left
-        if (Object.keys(cartData[itemId]).length === 0) {
-          delete cartData[itemId];
-        }
-      }
+    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    res.json({ cart });
+  } catch (err) {
+    console.error("Cart error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+// Update Cart (quantity change)
+export const updateCart = async (req, res) => {
+  try {
+    const authData = req.auth();
+    const userId = authData.userId;
+    const { productId, size, quantity } = req.body;
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    const item = cart.products.find(
+      (p) => p.productId.toString() === productId && p.size === size
+    );
+
+    if (!item) return res.status(404).json({ message: "Item not found in cart" });
+
+    if (quantity > 0) {
+      item.quantity = quantity; // update quantity
     } else {
-      // Update or add quantity
-      if (!cartData[itemId]) cartData[itemId] = {};
-      cartData[itemId][size] = quantity;
+      // Remove item if quantity <= 0
+      cart.products = cart.products.filter(
+        (p) => !(p.productId.toString() === productId && p.size === size)
+      );
     }
 
-    await userModel.findByIdAndUpdate(userId, { cartData });
-    res.json({ success: true, message: "Cart Updated" });
-
+    await cart.save();
+    res.status(200).json({ message: "Cart updated", cart });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ message: "Error updating cart", error });
   }
 };
-
-//  get user Cart
-// cartController.js
-const getUserCart = async (req, res) => {
-  try {
-    const userId = req.userId; // ✅ matches auth middleware
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "User not authenticated" });
-    }
-
-    const user = await userModel.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    const cartData = user.cartData || {};
-
-    res.json({ success: true, cartData });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server Error" });
-  }
-};
-
-
-export {
-  addToCart,
-  updateCart,
-  getUserCart,
-}
-
-

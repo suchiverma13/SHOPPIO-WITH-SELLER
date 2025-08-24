@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
@@ -10,11 +10,9 @@ import axios from "axios";
 const PlaceOrder = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const buyNowProduct = location.state?.product;
   const buyNowSize = location.state?.size;
 
-  const [method, setMethod] = useState("cod");
   const {
     backendUrl,
     token,
@@ -25,6 +23,7 @@ const PlaceOrder = () => {
     products,
   } = useContext(ShopContext);
 
+  const [method, setMethod] = useState("cod");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -42,6 +41,15 @@ const PlaceOrder = () => {
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
+  // Redirect if no Buy Now & cart is empty
+  useEffect(() => {
+    if (!buyNowProduct && Object.keys(cartItems).length === 0) {
+      toast.error("No products to place order");
+      navigate("/collections");
+    }
+  }, [buyNowProduct, cartItems, navigate]);
+
+  // Razorpay
   const initPay = (order, orderItems) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -74,9 +82,7 @@ const PlaceOrder = () => {
             toast.success("Payment Successful");
             setCartItems({});
             navigate("/orders");
-          } else {
-            toast.error("Payment Verification Failed");
-          }
+          } else toast.error("Payment Verification Failed");
         } catch (error) {
           toast.error(error.message);
         }
@@ -88,13 +94,12 @@ const PlaceOrder = () => {
     rzp.open();
   };
 
+  // Submit Order
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
     try {
       let orderItems = [];
 
-      // Buy Now flow
       if (buyNowProduct && buyNowSize) {
         orderItems.push({
           ...structuredClone(buyNowProduct),
@@ -102,7 +107,6 @@ const PlaceOrder = () => {
           quantity: 1,
         });
       } else {
-        // Cart flow
         for (const itemId in cartItems) {
           for (const size in cartItems[itemId]) {
             if (cartItems[itemId][size] > 0) {
@@ -146,9 +150,7 @@ const PlaceOrder = () => {
             toast.success(responseCOD.data.message);
             setCartItems({});
             navigate("/orders");
-          } else {
-            toast.error(responseCOD.data.message);
-          }
+          } else toast.error(responseCOD.data.message);
           break;
 
         case "razorpay":
@@ -157,11 +159,9 @@ const PlaceOrder = () => {
             orderData,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          if (responseRazorpay.data.success) {
+          if (responseRazorpay.data.success)
             initPay(responseRazorpay.data.razorpayOrder, orderItems);
-          } else {
-            toast.error("Failed to create Razorpay order");
-          }
+          else toast.error("Failed to create Razorpay order");
           break;
 
         case "stripe":
@@ -181,12 +181,12 @@ const PlaceOrder = () => {
       onSubmit={onSubmitHandler}
       className="flex flex-col sm:flex-row justify-between gap-4 min-h-[80vh] border-t px-4 sm:px-6 lg:px-16"
     >
-      {/* Left side Form */}
+      {/* Left Form */}
       <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
         <div className="text-xl sm:text-2xl my-3">
           <Title text1={"DELIVERY"} text2={"INFORMATION"} />
         </div>
-        {/* Delivery fields */}
+
         <div className="flex gap-3">
           <input
             required
@@ -207,6 +207,7 @@ const PlaceOrder = () => {
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
+
         <input
           required
           name="email"
@@ -225,6 +226,7 @@ const PlaceOrder = () => {
           placeholder="Street"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
+
         <div className="flex gap-3">
           <input
             required
@@ -245,6 +247,7 @@ const PlaceOrder = () => {
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
+
         <div className="flex gap-3">
           <input
             required
@@ -265,6 +268,7 @@ const PlaceOrder = () => {
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
+
         <input
           required
           name="phone"
@@ -278,7 +282,11 @@ const PlaceOrder = () => {
 
       {/* Right Side */}
       <div className="mt-8 sm:mt-0 flex-1">
-        <div className="mt-8 min-w-80">
+        {/* Order Summary */}
+        <div className="p-4 rounded-md  mb-6">
+    
+
+          {/* Dono cases me sirf total amount dikhaye */}
           <CartTotal
             totalAmount={
               buyNowProduct && buyNowSize
