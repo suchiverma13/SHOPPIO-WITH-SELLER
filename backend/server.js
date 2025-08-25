@@ -32,11 +32,14 @@ app.use(clerkMiddleware());
 
 
 
-// API Endpoints
-app.use("/api/user", userRouter);
+
+// ✅ is tarah karo
+app.use("/api/user", clerkMiddleware(), userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/order", orderRouter);
+app.use("/api/order", clerkMiddleware(), orderRouter);
+
+// Seller routes without Clerk (public signup/login)
 app.use("/api/seller", sellerRouter);
 
 // Default route

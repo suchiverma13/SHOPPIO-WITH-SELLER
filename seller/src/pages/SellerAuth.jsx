@@ -22,7 +22,7 @@ const SellerAuth = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${backendUrl}/seller/login`, {
+      const { data } = await axios.post(`${backendUrl}/api/seller/login`, {
         email: loginEmail,
         password: loginPassword,
       });
@@ -42,7 +42,7 @@ const SellerAuth = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${backendUrl}/seller/signup`, {
+      const { data } = await axios.post(`${backendUrl}/api/seller/signup`, {
         name,
         shopName,
         gst,
@@ -57,7 +57,8 @@ const SellerAuth = () => {
         alert(data.message);
       }
     } catch (err) {
-      alert("Something went wrong");
+      console.error("Signup Error:", err.response?.data || err.message); // 👈 Debug log
+      alert(err.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -65,8 +66,12 @@ const SellerAuth = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-0">
       {/* Welcome Message */}
       <div className="w-full max-w-md text-center mb-4 sm:mb-6 p-4 sm:p-6 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-md">
-        <h1 className="text-xl sm:text-2xl font-bold">Welcome to Seller Dashboard!</h1>
-        <p className="text-sm sm:text-base mt-1">Manage products, track orders & grow your business.</p>
+        <h1 className="text-xl sm:text-2xl font-bold">
+          Welcome to Seller Dashboard!
+        </h1>
+        <p className="text-sm sm:text-base mt-1">
+          Manage products, track orders & grow your business.
+        </p>
       </div>
 
       {/* Login/Signup Box */}
@@ -75,7 +80,9 @@ const SellerAuth = () => {
         <div className="flex mb-4 sm:mb-6">
           <button
             className={`flex-1 py-2 sm:py-3 ${
-              activeTab === "login" ? "border-b-2 border-blue-600 font-bold" : ""
+              activeTab === "login"
+                ? "border-b-2 border-blue-600 font-bold"
+                : ""
             }`}
             onClick={() => setActiveTab("login")}
           >
@@ -83,7 +90,9 @@ const SellerAuth = () => {
           </button>
           <button
             className={`flex-1 py-2 sm:py-3 ${
-              activeTab === "signup" ? "border-b-2 border-blue-600 font-bold" : ""
+              activeTab === "signup"
+                ? "border-b-2 border-blue-600 font-bold"
+                : ""
             }`}
             onClick={() => setActiveTab("signup")}
           >
