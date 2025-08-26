@@ -17,8 +17,6 @@ const List = ({ token, setSellerId }) => {
       if (response.data.success && response.data.products.length > 0) {
         setSellerId(response.data.products[0].sellerId); // set sellerId for App state
         setList(response.data.products);
-      } else {
-        toast.error("No products found");
       }
     } catch (error) {
       console.error(error);
@@ -27,7 +25,8 @@ const List = ({ token, setSellerId }) => {
   };
 
   const removeProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
 
     try {
       const response = await axios.post(
@@ -56,7 +55,7 @@ const List = ({ token, setSellerId }) => {
     <div className="bg-white shadow-md rounded-lg p-6 mt-6">
       <h2 className="text-2xl font-semibold mb-4">All Products</h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="min-w-[600px] w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-100 text-gray-700 text-sm uppercase">
               <th className="py-3 px-4">Image</th>
@@ -69,17 +68,23 @@ const List = ({ token, setSellerId }) => {
           <tbody>
             {list.length > 0 ? (
               list.map((item, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50 transition">
+                <tr
+                  key={index}
+                  className="border-b hover:bg-gray-50 transition"
+                >
                   <td className="py-2 px-4">
                     <img
-                      className="h-26 object-cover rounded-md"
+                      className="h-20 object-cover rounded-md"
                       src={item.image[0]}
                       alt={item.name}
                     />
                   </td>
                   <td className="py-2 px-4 font-medium">{item.name}</td>
                   <td className="py-2 px-4">{item.category}</td>
-                  <td className="py-2 px-4 font-semibold">{currency}{item.price}</td>
+                  <td className="py-2 px-4 font-semibold">
+                    {currency}
+                    {item.price}
+                  </td>
                   <td className="py-2 px-4 text-center">
                     <button
                       onClick={() => removeProduct(item._id)}

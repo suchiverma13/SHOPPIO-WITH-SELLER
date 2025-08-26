@@ -39,7 +39,7 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-gray-200 py-5 text-center text-sm text-gray-500">
-        © 2024 Forever.com - All Rights Reserved
+        © 2024 Shoppio.com - All Rights Reserved
       </div>
     </footer>
   );

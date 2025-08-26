@@ -30,9 +30,9 @@ const App = () => {
         const response = await axios.get(`${backendUrl}/api/product/adminlist`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (response.data.success && response.data.products.length > 0)
+        if (response.data.success && response.data.products.length > 0) {
           setSellerId(response.data.products[0].sellerId);
-        else toast.error("No products found");
+        }
       } catch (error) {
         console.error(error);
         toast.error(error.message);
@@ -54,7 +54,9 @@ const App = () => {
     );
 
   if (loadingSeller)
-    return <p className="text-gray-600 p-6 text-center">Loading seller info...</p>;
+    return (
+      <p className="text-gray-600 p-6 text-center">Loading seller info...</p>
+    );
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -66,11 +68,19 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Navigate to="/add" />} />
             <Route path="/add" element={<Add token={token} />} />
-            <Route path="/list" element={<List token={token} setSellerId={setSellerId} />} />
-            <Route path="/orders" element={<Orders token={token} sellerId={sellerId} />} />
+            <Route
+              path="/list"
+              element={<List token={token} setSellerId={setSellerId} />}
+            />
+            <Route
+              path="/orders"
+              element={<Orders token={token} sellerId={sellerId} />}
+            />
             <Route
               path="/cancelled-orders"
-              element={<SellerCancelledOrders token={token} sellerId={sellerId} />}
+              element={
+                <SellerCancelledOrders token={token} sellerId={sellerId} />
+              }
             />
             <Route path="*" element={<Navigate to="/add" />} />
           </Routes>

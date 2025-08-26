@@ -2,8 +2,17 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 
-const CartTotal = () => {
+const CartTotal = ({ totalAmount }) => {
   const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
+
+  // Agar prop mila hai to usko use karo, warna context ka calculation
+  const finalAmount =
+    totalAmount !== undefined ? totalAmount : getCartAmount() + delivery_fee;
+
+  const subtotal =
+    totalAmount !== undefined
+      ? totalAmount - delivery_fee
+      : getCartAmount();
 
   return (
     <div className="w-full">
@@ -15,7 +24,7 @@ const CartTotal = () => {
         <div className="flex justify-between ">
           <p>Subtotal</p>
           <p>
-            {currency} {getCartAmount()}.00
+            {currency} {subtotal}.00
           </p>
         </div>
         <hr />
@@ -29,8 +38,7 @@ const CartTotal = () => {
         <div className="flex justify-between">
           <b>Total</b>
           <b>
-            {currency}{" "}
-            {getCartAmount() == 0 ? 0 : getCartAmount() + delivery_fee}.00
+            {currency} {finalAmount}.00
           </b>
         </div>
       </div>

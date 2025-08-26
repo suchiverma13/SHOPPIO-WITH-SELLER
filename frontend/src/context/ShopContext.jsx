@@ -1,3 +1,4 @@
+
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -5,15 +6,16 @@ import { useAuth } from "@clerk/clerk-react";
 
 export const ShopContext = createContext();
 const delivery_fee = 49;
-const currency = "Rs";
+const currency = "Rs.";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const ShopContextProvider = ({ children }) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { getToken, isSignedIn } = useAuth();
 
   const [token, setToken] = useState("");
   const [cartItems, setCartItems] = useState({});
+  const [showSearch, setShowSearch] = useState(false);
+  const [search, setSearch] = useState("");   // ✅ add this line
   const [products, setProducts] = useState([]);
   const [loadingCart, setLoadingCart] = useState(true);
 
@@ -171,7 +173,7 @@ const ShopContextProvider = ({ children }) => {
     getProducts();
   }, []);
 
-  return (
+   return (
     <ShopContext.Provider
       value={{
         products,
@@ -186,6 +188,10 @@ const ShopContextProvider = ({ children }) => {
         setCartItems,
         currency,
         backendUrl,
+        showSearch,
+        setShowSearch,
+        search,        // ✅ pass search
+        setSearch,     // ✅ pass setSearch
       }}
     >
       {children}

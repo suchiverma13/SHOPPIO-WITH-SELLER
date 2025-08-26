@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { ShopContext } from '../context/ShopContext';
-import { assets } from '../assets/assets';
-import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import { assets } from "../assets/assets";
+import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SearchBar = () => {
-  const { search, setSearch, showSearch, setShowSearch } = useContext(ShopContext);
+  const { search, setSearch, showSearch, setShowSearch } =
+    useContext(ShopContext);
   const [visible, setVisible] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    setVisible(location.pathname.includes('collection'));
+    setVisible(location.pathname.includes("collection"));
   }, [location]);
 
   return (
@@ -34,8 +35,6 @@ const SearchBar = () => {
                            shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 
                            pr-10 transition-all duration-200 bg-white/80 backdrop-blur"
               />
-
-            
 
               {/* Close Button (Right) */}
               {search.length > 0 && (

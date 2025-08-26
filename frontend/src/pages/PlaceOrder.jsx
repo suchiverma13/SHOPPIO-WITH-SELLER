@@ -50,7 +50,7 @@ const PlaceOrder = () => {
   }, [buyNowProduct, cartItems, navigate]);
 
   // Razorpay
-  const initPay = (order, orderItems) => {
+  const initPay = (order, orderItems, isBuyNow) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -80,7 +80,12 @@ const PlaceOrder = () => {
 
           if (data.success) {
             toast.success("Payment Successful");
-            setCartItems({});
+
+            // ✅ Cart clear tabhi jab cart checkout ho
+            if (!isBuyNow) {
+              setCartItems({});
+            }
+
             navigate("/orders");
           } else toast.error("Payment Verification Failed");
         } catch (error) {
@@ -137,6 +142,7 @@ const PlaceOrder = () => {
         items: orderItems,
         address: formData,
         amount: totalAmount,
+        buyNow: !!(buyNowProduct && buyNowSize), // ✅ yeh flag bhej do
       };
 
       switch (method) {
@@ -148,7 +154,12 @@ const PlaceOrder = () => {
           );
           if (responseCOD.data.success) {
             toast.success(responseCOD.data.message);
-            setCartItems({});
+
+            // ✅ Agar cart checkout hai tabhi clear karo
+            if (!orderData.buyNow) {
+              setCartItems({});
+            }
+
             navigate("/orders");
           } else toast.error(responseCOD.data.message);
           break;
@@ -160,7 +171,12 @@ const PlaceOrder = () => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
           if (responseRazorpay.data.success)
-            initPay(responseRazorpay.data.razorpayOrder, orderItems);
+            // Call
+            initPay(
+              responseRazorpay.data.razorpayOrder,
+              orderItems,
+              orderData.buyNow
+            );
           else toast.error("Failed to create Razorpay order");
           break;
 
@@ -284,8 +300,6 @@ const PlaceOrder = () => {
       <div className="mt-8 sm:mt-0 flex-1">
         {/* Order Summary */}
         <div className="p-4 rounded-md  mb-6">
-    
-
           {/* Dono cases me sirf total amount dikhaye */}
           <CartTotal
             totalAmount={

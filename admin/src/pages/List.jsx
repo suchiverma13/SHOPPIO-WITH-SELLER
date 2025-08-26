@@ -47,22 +47,24 @@ const List = ({ token }) => {
   }, []);
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">All Products</h2>
+  <div className="p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-6">
+    <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
+      All Products
+    </h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-blue-50 text-gray-700 text-sm uppercase">
-              <tr>
-                <th className="py-3 px-4">Image</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Price</th>
-                <th className="py-3 px-4 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-gradient-to-r from-purple-100 to-pink-100 text-gray-700 text-sm uppercase">
+          <tr>
+            <th className="py-3 px-4">Image</th>
+            <th className="py-3 px-4">Name</th>
+            <th className="py-3 px-4">Category</th>
+            <th className="py-3 px-4">Price</th>
+            <th className="py-3 px-4 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
               {list.length > 0 ? (
                 list.map((item, index) => (
                   <tr

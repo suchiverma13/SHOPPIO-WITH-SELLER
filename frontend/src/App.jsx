@@ -30,12 +30,12 @@ const App = () => {
       <SearchBar />
       <div className="px-4 sm:px-[5vw]">
         <ToastContainer
-          position="top-right"
+          position="bottom-right"
           toastClassName={() =>
             "relative flex p-5 sm:px-7 rounded-md justify-between overflow-hidden cursor-pointer shadow-lg bg-white text-black"
           }
-          style={{ top: "10px", right: "10px" }}
         />
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
