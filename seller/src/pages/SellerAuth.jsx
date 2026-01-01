@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { backendUrl } from "../App";
+import { backendUrl } from "../App"; // Ensure this matches your export in App.jsx
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-const SellerAuth = () => {
-  const [activeTab, setActiveTab] = useState("login"); // login / signup
+const SellerAuth = ({ setToken }) => {
+  const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   // Login state
   const [loginEmail, setLoginEmail] = useState("");
@@ -22,6 +25,7 @@ const SellerAuth = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Using the imported backendUrl from App.jsx is the safest way
       const { data } = await axios.post(`${backendUrl}/api/seller/login`, {
         email: loginEmail,
         password: loginPassword,
@@ -29,13 +33,15 @@ const SellerAuth = () => {
 
       if (data.success) {
         localStorage.setItem("sellerToken", data.token);
-        alert("Login successful");
-        window.location.href = "/seller/dashboard";
+        if (setToken) setToken(data.token);
+        toast.success("Login successful!");
+        navigate("/seller/dashboard");
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Login failed");
     }
   };
 
@@ -51,20 +57,23 @@ const SellerAuth = () => {
       });
 
       if (data.success) {
-        alert("Signup request sent! Wait for admin approval.");
+        toast.success("Signup request sent! Wait for admin approval.");
         setActiveTab("login");
+        // Clear form
+        setName(""); setShopName(""); setGst(""); setSignupEmail(""); setSignupPassword("");
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (err) {
-      console.error("Signup Error:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Something went wrong");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Signup failed");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-4">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl overflow-hidden">
+        
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center py-6 px-4">
           <h1 className="text-2xl sm:text-3xl font-bold">Seller Dashboard</h1>
@@ -77,9 +86,7 @@ const SellerAuth = () => {
         <div className="flex">
           <button
             className={`flex-1 py-3 font-medium transition ${
-              activeTab === "login"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+              activeTab === "login" ? "bg-blue-600 text-white" : "bg-gray-100 hover:bg-gray-200"
             }`}
             onClick={() => setActiveTab("login")}
           >
@@ -87,9 +94,7 @@ const SellerAuth = () => {
           </button>
           <button
             className={`flex-1 py-3 font-medium transition ${
-              activeTab === "signup"
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+              activeTab === "signup" ? "bg-green-600 text-white" : "bg-gray-100 hover:bg-gray-200"
             }`}
             onClick={() => setActiveTab("signup")}
           >
@@ -102,33 +107,21 @@ const SellerAuth = () => {
           {activeTab === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
               <input
-                type="email"
-                placeholder="Email"
+                type="email" placeholder="Email"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                required
+                value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required
               />
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  type={showPassword ? "text" : "password"} placeholder="Password"
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  required
+                  value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required
                 />
-                <span
-                  className="absolute right-3 top-3 cursor-pointer text-gray-500"
-                  onClick={togglePassword}
-                >
+                <span className="absolute right-3 top-3 cursor-pointer text-gray-500" onClick={togglePassword}>
                   {showPassword ? "🙈" : "👁️"}
                 </span>
               </div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
+              <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 Login
               </button>
             </form>
@@ -137,57 +130,36 @@ const SellerAuth = () => {
           {activeTab === "signup" && (
             <form onSubmit={handleSignup} className="space-y-4">
               <input
-                type="text"
-                placeholder="Owner Name"
+                type="text" placeholder="Owner Name"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                value={name} onChange={(e) => setName(e.target.value)} required
               />
               <input
-                type="text"
-                placeholder="Shop Name"
+                type="text" placeholder="Shop Name"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-                value={shopName}
-                onChange={(e) => setShopName(e.target.value)}
-                required
+                value={shopName} onChange={(e) => setShopName(e.target.value)} required
               />
               <input
-                type="text"
-                placeholder="GST Number"
+                type="text" placeholder="GST Number"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-                value={gst}
-                onChange={(e) => setGst(e.target.value)}
-                required
+                value={gst} onChange={(e) => setGst(e.target.value)} required
               />
               <input
-                type="email"
-                placeholder="Email"
+                type="email" placeholder="Email"
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                required
+                value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required
               />
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  type={showPassword ? "text" : "password"} placeholder="Password"
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
-                  required
+                  value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required
                 />
-                <span
-                  className="absolute right-3 top-3 cursor-pointer text-gray-500"
-                  onClick={togglePassword}
-                >
+                <span className="absolute right-3 top-3 cursor-pointer text-gray-500" onClick={togglePassword}>
                   {showPassword ? "🙈" : "👁️"}
                 </span>
               </div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-              >
+              <button type="submit" className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                 Signup
               </button>
             </form>

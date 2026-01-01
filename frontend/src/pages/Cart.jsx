@@ -84,7 +84,7 @@ const Cart = () => {
                   </p>
                   <div className="flex items-center gap-4">
                     <p className="text-gray-700 font-semibold">
-                      ${productData.price}
+                      Rs.{productData.price}
                     </p>
                     <span className="px-2 py-1 border rounded bg-gray-100 text-sm">
                       {item.size}

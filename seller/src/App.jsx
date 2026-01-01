@@ -10,7 +10,7 @@ import SellerCancelledOrders from "./pages/SellerCancelledOrders";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL;
+export const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"; 
 export const currency = "₹";
 
 const App = () => {
@@ -57,7 +57,7 @@ const App = () => {
     return (
       <p className="text-gray-600 p-6 text-center">Loading seller info...</p>
     );
-
+  
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <ToastContainer />

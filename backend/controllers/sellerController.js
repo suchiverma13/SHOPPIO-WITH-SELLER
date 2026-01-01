@@ -24,7 +24,7 @@ export const signupSeller = async (req, res) => {
       gst,
       email,
       password,
-      isApproved: false, // 👈 default
+      isApproved: false,
     });
 
     res.status(201).json({ success: true, message: "Seller registered successfully" });

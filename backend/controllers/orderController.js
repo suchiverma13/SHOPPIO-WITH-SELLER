@@ -39,44 +39,58 @@ const placedOrder = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 };
+// orderController.js
 
-// ✅ Verify Razorpay Payment
 const verifyRazorpay = async (req, res) => {
-    try {
-        const { userId } = req.auth();
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, items, address, amount } = req.body;
+  try {
+    const { userId } = req.auth();
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, items, address, amount } = req.body;
 
-        const generatedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-            .update(razorpay_order_id + "|" + razorpay_payment_id)
-            .digest("hex");
+    // 👇 DEBUGGING LOGS (Isse terminal me check karein)
+    console.log("--- Razorpay Verification Start ---");
+    console.log("Received Order ID:", razorpay_order_id);
+    console.log("Received Payment ID:", razorpay_payment_id);
+    console.log("Received Signature:", razorpay_signature);
+    console.log("Using Key Secret:", process.env.RAZORPAY_KEY_SECRET); // Isko check karein ki ye UNDEFINED to nahi hai
 
-        if (generatedSignature === razorpay_signature) {
-            await orderModel.create({
-                userId,
-                items,
-                address,
-                amount,
-                paymentMethod: "Razorpay",
-                payment: true,
-                date: Date.now(),
-                razorpayOrderId: razorpay_order_id,
-                razorpayPaymentId: razorpay_payment_id,
-                status: "Paid"
-            });
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-            // ✅ Clear cart in both userModel and Cart collection
-            await userModel.findByIdAndUpdate(userId, { cartData: {} });
-            await Cart.findOneAndUpdate({ userId }, { products: [] });
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
 
-            res.json({ success: true, message: "Payment Verified & Order Placed" });
-        } else {
-            res.json({ success: false, message: "Payment Verification Failed" });
-        }
-    } catch (error) {
-        res.json({ success: false, message: error.message });
+    console.log("Generated Signature:", generatedSignature);
+    console.log("Match Status:", generatedSignature === razorpay_signature);
+    console.log("-----------------------------------");
+
+    if (generatedSignature === razorpay_signature) {
+      await orderModel.create({
+        userId,
+        items,
+        address,
+        amount,
+        paymentMethod: "Razorpay",
+        payment: true,
+        date: Date.now(),
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        status: "Paid"
+      });
+
+      await userModel.findByIdAndUpdate(userId, { cartData: {} });
+      await Cart.findOneAndUpdate({ userId }, { products: [] });
+
+      res.json({ success: true, message: "Payment Verified & Order Placed" });
+    } else {
+      res.json({ success: false, message: "Payment Verification Failed" });
     }
+  } catch (error) {
+    console.error("Verification Error:", error);
+    res.json({ success: false, message: error.message });
+  }
 };
+
 
 // ✅ Razorpay Order
 const placedOrderRazorpay = async (req, res) => {
